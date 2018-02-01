@@ -1,0 +1,50 @@
+<!--网格布局-->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <style>
+        .wrapper {
+            display: grid;
+            border: 2px solid #f76707;
+            border-radius: 5px;
+            background-color: #fff4e6;
+            grid-template-columns: repeat(3, 1fr);
+            grid-auto-rows: 200px;
+            grid-column-gap: 10px;
+            grid-row-gap: 1em;
+        }
+
+        .wrapper>div {
+            border: 2px solid #ffa94d;
+            border-radius: 5px;
+            background-color: #ffd8a8;
+        }
+
+        .wrapper .box1 {
+            grid-column-start: 1;
+            grid-column-end: 4;
+        }
+
+        .wrapper .box2 {
+            grid-column-start: 1;
+            grid-row-start: 2;
+            grid-row-end: 4;
+        }
+    </style>
+
+</head>
+
+<body>
+    <div class="gird">
+        <div class="wrapper">
+            <div class="box1">One</div>
+            <div class="box2">Two</div>
+            <div>Three</div>
+            <div>Four</div>
+            <div>Five</div>
+        </div>
+    </div>
+</body>
+
+</html>

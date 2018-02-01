@@ -1,0 +1,94 @@
+<!--圣杯布局​-->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <style>
+        .main {
+            width: 100%;
+        }
+
+        .main .header {
+            display: flex;
+            height: 100px;
+            background: #ffeebb;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .main .body {
+            display: flex;
+            flex-flow: row;
+            min-height: 800px;
+            background: #999999;
+        }
+
+        .main .body .nav {
+            flex: 1 1 20%;
+            border: 2px solid #8888bb;
+            max-width: 150px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .main .body .nav .nav-item {
+            flex: 1 1 20%;
+            border: 2px solid #8888bb;
+            background: #ffeebb;
+            max-width: 150px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .main .body .content {
+            flex: 3 1 60%;
+            border: 2px solid #8888bb;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .main .body .aside {
+            flex: 1 1 20%;
+            border: 2px solid #8888bb;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .main .footer {
+            display: flex;
+            height: 100px;
+            background: #ffeebb;
+            justify-content: center;
+            align-items: center;
+        }
+    </style>
+
+</head>
+
+<body>
+    <div class="main">
+        <div class="header">header</div>
+        <div class="body">
+            <div class="nav">
+                <div class="nav-item">nav item</div>
+                <div class="nav-item">nav item</div>
+                <div class="nav-item">nav item</div>
+                <div class="nav-item">nav item</div>
+                <div class="nav-item">nav item</div>
+                <div class="nav-item">nav item</div>
+            </div>
+            <div class="content">
+                content
+            </div>
+            <div class="aside">
+                aside
+            </div>
+        </div>
+        <div class="footer">footer</div>
+    </div>
+</body>
+
+</html>
