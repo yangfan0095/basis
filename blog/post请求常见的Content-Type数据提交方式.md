@@ -37,4 +37,6 @@ Content-Type: application/json;charset=utf-8
 
 本文参考资料
 
+
+[mdn](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Access_control_CORS)
 [资料1](https://imququ.com/post/four-ways-to-post-data-in-http.html)
