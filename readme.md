@@ -7,4 +7,5 @@
 * [http协议之post请求常见的Content-Type数据提交方式](https://github.com/yangfan0095/basis/blob/master/blog/post%E8%AF%B7%E6%B1%82%E5%B8%B8%E8%A7%81%E7%9A%84Content-Type%E6%95%B0%E6%8D%AE%E6%8F%90%E4%BA%A4%E6%96%B9%E5%BC%8F.md)
 * [Http 访问控制](https://github.com/yangfan0095/basis/blob/master/blog/Http%E8%AE%BF%E9%97%AE%E6%8E%A7%E5%88%B6.md)
 * [React基础知识梳理](https://github.com/yangfan0095/basis/blob/master/blog/react%E7%9B%B8%E5%85%B3%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86%E6%A2%B3%E7%90%86.md)
+*[generator函数同步方式处理异步理解](https://github.com/yangfan0095/basis/blob/master/blog/generator%E5%90%8C%E6%AD%A5%E5%AE%9E%E7%8E%B0%E5%BC%82%E6%AD%A5%E5%9F%BA%E7%A1%80%E7%90%86%E8%A7%A3(1).md)
 
