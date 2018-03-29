@@ -236,3 +236,4 @@ g.next().value.then(function(data){
   });
 });
 ```
+理解 : 重点是通过thunk 或者 promise 的方式将参数和回调方法 分离开来。 利用递归 的方式执行遍历器下面的异步操作。
