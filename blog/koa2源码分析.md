@@ -1,8 +1,10 @@
-### koa2 源码分析
+## koa2 源码分析
 
 最近想做一个关于NodeJS 服务端相关的总结，思前想后觉得可以从源码分析作为切入点。于是首先便选择了koa2.
 
 注：由于书写习惯原因 ，下文中所有出现koa的字眼 皆指的是koa2.x版本。如果是1.x版本则用koa1.x标明。
+
+本文章写在我的github仓库 [https://github.com/yangfan0095/basis](https://github.com/yangfan0095/basis)
 
 首先进入koa2 的文件目录 ，我们可以看到只有只有四个文件
 [https://github.com/koajs/koa/tree/master/lib](https://github.com/koajs/koa/tree/master/lib).
@@ -35,7 +37,7 @@ module.exports = class Application extends Emitter {
   }
   ...
 ```
-#### 先从外层剖析
+### 先从外层剖析
 
 首先我们先看看koa2的正常使用逻辑。 以下是一个有koa2脚手架生成的一个初始化项目
 
@@ -103,9 +105,9 @@ server.listen(3000, () => {
 * 1 koa 服务主要是在做中间件处理
 * 2 koa 对原生http 创建方法的回调做了处理,原生是 `(req,res) =>{ }`, koa 对齐做了封装 封装成了 koa.callback()。 
 
-#### 进入application.js  查看koa实例
+### 进入application.js  查看koa实例
 
-###### 构造
+#### 构造
 我们重点关注中间件处理和对http 的 req res  请求返回流的处理。
 下面来逐一分析 application 的源码
 
@@ -132,7 +134,7 @@ module.exports = class Application extends Emitter {
   }
   ...
 ```
-###### listen 方法
+#### listen 方法
 listen 方法 我们可以看到 listen 是已经封装好了一个 创建http服务的方法 这个方法传入一个 该实例的回调  即 app.callback() ，返回一个监听方法。所以服务 也可以直接通过app.listen(...arg) 启动
 ```
   /**
@@ -152,7 +154,7 @@ listen 方法 我们可以看到 listen 是已经封装好了一个 创建http�
   }
   
 ```
-###### use 
+#### use 
 接下来就是use方法 主要做的事情就是 传入一个中间件方法 将中间件push到this.middleware 数组. ` this.middleware.push(fn); `  其实use 最关键的的就只有这一行代码。
 
 除此之外作者还提醒我们，传入中间件的Fn不要写成generator 函数。 原因是因为 koa2是基于 async await 处理异步。 async 和 await 是ES7 新增的语法 本质是对 generator 函数做的一层封装 。 实现了异步变同步的写法， 更够更清晰的反映出函数控制流。相似功能的库在koa1.x 还有一个co 库 非常有名，实现原理也很简单 主要是两种方式 用thunk 或者 Promise 结合递归都可以实现。 大家感兴趣可以看阮一峰老师的ES6标准 里面就有提到 [Generator 函数的异步应用 传送门](http://es6.ruanyifeng.com/#docs/generator-async)。
@@ -186,7 +188,7 @@ listen 方法 我们可以看到 listen 是已经封装好了一个 创建http�
 callback 对node原生http返回一个handler callback。
 第一行代码 将存放中间件函数的数组 this.middleware 通过compose 函数处理得到一个 fn。
 
-###### callback 方法
+#### callback 方法
 
  ```
 
@@ -212,7 +214,7 @@ callback 对node原生http返回一个handler callback。
   }
   
 ```
-###### compose 函数
+#### compose 函数
 compose 函数前端用过 redux 的同学肯定都很熟悉。redux 通过compose来处理 中间件 。 原理是 借助数组的 reduce 对数组的参数进行迭代，而我们来看看kos实现compose的方法。感觉扯远了。
 
 ```
@@ -310,7 +312,7 @@ dispatch(0) 也就是this.middleware数组中下标为0的函数，也就是说 
  * handleRequest 如何处理ctx 和 fn
  
 
-######  createContext方法
+####  createContext方法
 
 createContext 将req 和 res 分别挂载到context 对象上。
 ```
@@ -349,7 +351,7 @@ createContext 将req 和 res 分别挂载到context 对象上。
   
 ```
 
- ###### handleRequest 方法
+ #### handleRequest 方法
  
  handleRequest 方法直接作为监听成功的调用方法。已经拿到了 包含req res 的ctx 和 可以执行所有 中间件函数的fn.
  首先一进来默认设置状态码为404 . 然后分别声明了 成功函数执行完成以后的成功 失败回调方法。这两个方法实际上就是再将ctx 分化成req res . 分别调这两个对象去客户端执行内容返回。
