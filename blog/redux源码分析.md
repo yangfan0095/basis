@@ -139,6 +139,40 @@ function dispatch(action){
     
 ```
 
+订阅函数返回一个解除订阅函数`unsubscribe`，传入的监听函数listener将在action 触发 dispatch 时被调用,用这个监听函数去改变状态树中的对应的state。首先订阅器在每次dispatch之前会将listener 保存到nextListeners 中，相当于是一份快照。如果当你正在执行listener函数时，如果此时又收到订阅或者接触订阅指令 ，后者不会立即生效 ，而是在下一次调用`dispatch` 会使用最新的订阅者列表即`nextListeners`。
+当调用dispatch时 将最新的订阅者快照`nextListeners` 赋给 `currentListeners`。
+[这里有篇博客文章专门讨论了这个话题](https://github.com/MrErHu/blog/issues/18)
+```
+    const listeners = currentListeners = nextListeners
+    for (let i = 0; i < listeners.length; i++) {
+      const listener = listeners[i]
+      listener()
+    }
+    
+```
+
+关于ensureCanMutateNextListeners函数的作用，我看了很多类似的源码分析，但是都没有找到很好的解释。大抵上的作用是某些场景可能会导重复的listener被添加，从而导致当前订阅者列表中存在两个相同的处理函数。`ensureCanMutateNextListeners`的作用是为了规避这种现象发生。
+```
+  function ensureCanMutateNextListeners() {
+    if (nextListeners === currentListeners) {
+      nextListeners = currentListeners.slice()
+    }
+  }
+  
+```
+当我们以如下方式追加订阅 ，执行dispatch时就会造成重复订阅。
+具体的例子可以看这个链接：
+[React Redux source function ensureCanMutateNextListeners？
+](https://stackoverflow.com/questions/36250266/react-redux-source-function-ensurecanmutatenextlisteners?utm_medium=organic&utm_source=google_rich_qa&utm_campaign=google_rich_qa)
+```
+const store = createStore(someReducer);
+
+function doSubscribe() {
+  store.subscribe(doSubscribe);
+}
+doSubscribe(); 
+
+```
 ```
  function subscribe(listener) {
     if (typeof listener !== 'function') {
