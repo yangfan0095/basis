@@ -450,11 +450,57 @@ export default function combineReducers(reducers) {
 }
 
 ```
+#### compose函数 &  applyMiddleware 函数
+compose 源码如下：
+```
+export default function compose(...funcs) {
+  if (funcs.length === 0) {
+    return arg => arg
+  }
 
-#### applyMiddleware
+  if (funcs.length === 1) {
+    return funcs[0]
+  }
 
-这里的applyMiddleware 是一个enhancer 方法用来增强store的dispatch 功能，这里用来合并中间件。首先将所有中间件push 到一个数组chain中。
-然后执行compose函数。 `compose` 函数，借助了数组的 reduce 方法对数组的参数进行迭代，返回一个方法 这个方法一执行就会从数组下标0开始依次执行所有的中间件函数。这里将这个返回的compose方法赋给dispatch
+  return funcs.reduce((a, b) => (...args) => a(b(...args)))
+}
+
+```
+
+关键看着一行
+`funcs.reduce((a, b) => (...args) => a(b(...args)))`compose 函数的作用是从右到左去组合中间件函数。
+我们看一下常用的中间件范例
+[redux-thunk](https://github.com/gaearon/redux-thunk/blob/master/src/index.js)
+
+[redux-logger](https://github.com/evgenyrodionov/redux-logger/blob/master/src/index.js)
+
+
+```
+let logger = ({ dispatch, getState }) => next => action => {
+    console.log('next:之前state', getState())
+    let result = next(action)
+    console.log('next:之前state', getState())
+    return result
+}
+
+let thunk = ({ dispatch, getState }) => next => action => {
+    if (typeof action === 'function') {
+        return action(dispatch, getState)
+    }
+    return next(action)
+}
+```
+中间件的格式是输入`dispatch, getState` 输出 `next`
+
+```
+let middleware = ({ dispatch, getState }) => next => action => {
+    ...//操作
+    return next(action)
+}
+``` 
+这里的compose函数输入一个包含多个中间件函数的数组，然后通过reduce  迭代成 `middleware1(middleware2(middleware3(...args)))` 这种形式。 这里由于js 传值调用 ，每个中间件在传入第二个中间件时 实际上已经被执行过一次。
+所以第二个中间件传入的args 是第一个中间件return的 next方法。所以 compose返回的函数可以简化为 `function returnComposeFunc = middleware(next)` ，现在我们来看applyMiddleware
+
 ```
 export default function applyMiddleware(...middlewares) {
   return (createStore) => (reducer, preloadedState, enhancer) => {
@@ -477,21 +523,37 @@ export default function applyMiddleware(...middlewares) {
 }
 
 ```
+这里的applyMiddleware 是一个enhancer 方法用来增强store的dispatch 功能，这里用来合并中间件。首先利用闭包给每个中间件传递它们需要的getState和dispatch。
 ```
-export default function compose(...funcs) {
-  if (funcs.length === 0) {
-    return arg => arg
-  }
-
-  if (funcs.length === 1) {
-    return funcs[0]
-  }
-
-  return funcs.reduce((a, b) => (...args) => a(b(...args)))
+const middlewareAPI = {
+      getState: store.getState,
+      dispatch: (action) => dispatch(action)
+    }
+chain = middlewares.map(middleware => middleware(middlewareAPI))
+```
+然后将所有中间件push 到一个数组chain中。
+然后执行compose函数。执行compose函数` compose(...chain)(store.dispatch)`  compose返回一个`returnComposeFunc` 我们传入一个`store.dispatch` ，然后会返回一个  方法 。
+而这个方法就是我们新的dispatch方法。
+```
+ action => {
+    if (typeof action === 'function') {
+        return action(dispatch, getState)
+    }
+    return next(action)
 }
-
-
 ```
-参考资料
+看到这里不得不说这里的代码只有寥寥几行 ，却是如此值得推敲，写得非常之精妙！
 
-* [https://techblog.toutiao.com/2017/04/25/redux/](https://techblog.toutiao.com/2017/04/25/redux/)
+写到这里 redux的源码已经看完了，在react中需要我们手动添加订阅，我们使用react-redux 来为每个组件添加订阅。react-redux 里面要讲的也有很多，后面会写一篇专门分析。
+
+最后欢迎拍砖
+
+参考资料
+* [中文官方文档](http://cn.redux.js.org/)
+* [redux middleware 详解](https://zhuanlan.zhihu.com/p/20597452)
+* [http://www.cnblogs.com/cloud-/p/7284136.html](http://www.cnblogs.com/cloud-/p/7284136.html)
+* [alloyteam 探索react-redux的小秘密](http://www.alloyteam.com/2016/03/10532/)
+* [https://github.com/evgenyrodionov/redux-logger](https://github.com/evgenyrodionov/redux-logger)
+* [redux-thunk](https://github.com/gaearon/redux-thunk/blob/master/src/index.js)
+* [阮一峰的标准ES6 Generator 函数的异步应用](http://es6.ruanyifeng.com/#docs/generator-async) 里面讲的thunk函数和我们的中间件函数思想比较类似
+
