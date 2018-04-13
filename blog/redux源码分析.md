@@ -1,7 +1,7 @@
 ### 一步一步分析Redux源码
 
 ##### 前言 
-最近做项目遇到了一些复杂数据处理，侧面体会到一个良好的数据层设计和管理对一个项目的稳定性和可维护性是多么的重要。于是想以源码分析的方式总结一下当前的数据管理方式，首选redux。
+最近做项目遇到了一些复杂数据处理，侧面体会到一个良好的数据层设计对一个项目的稳定性和可维护性是多么的重要。于是想以源码分析的方式总结一下当前的数据管理方式，首选redux。
 我们可以通过Redux 的官方文档来了解其设计思想。
 [http://cn.redux.js.org/](http://cn.redux.js.org/).
 
@@ -39,8 +39,9 @@ export {
 #### createStore
 ##### createStore概括
 
-文件对外导出的`createStore`，该方法的主要作用是创建一个带有初始化状态树的store。并且该状态树下的状态只能够通过 `createStore`提供的dispatch api 来修改。
+`createStore`该方法的主要作用是创建一个带有初始化状态树的store。并且该状态树状态只能够通过 `createStore`提供的`dispatch` api 来触发`reducer`修改。
 
+源码如下：
 ```
 import isPlainObject from 'lodash/isPlainObject'
 import $$observable from 'symbol-observable'
@@ -73,9 +74,9 @@ export default function createStore(reducer, preloadedState, enhancer) {
   }
   
 ```
-方法有三个参数 reducer ，preloadedState ，enhancer。其中reducer 是一个方法更来更新state。 preloadedState 是初始化state数据 ，`enhancer` 是一个高阶函数用于拓展store的功能 ， 如redux 自带的模块`applyMiddleware`就是一个`enhancer`函数。
+方法有三个参数 reducer ，preloadedState ，enhancer。其中reducer是生成store时通过combineReducers合成以后返回的一个方法`combination` 这个方法 输入 state 和 action  ,返回最新的状态树，用来更新state。 preloadedState 是初始化state数据 ，`enhancer` 是一个高阶函数用于拓展store的功能 ， 如redux 自带的模块`applyMiddleware`就是一个`enhancer`函数。
 
-首先js 函数传递的是形参。源码判断第二个参数的类型，如果是function 那么就说明传入的参数不是initState. 所以就把第二个参数替换成enhancer 。这样提高了我们的开发体验。
+看源码，首先js 函数传递的是形参。源码判断第二个参数的类型，如果是function 那么就说明传入的参数不是initState. 所以就把第二个参数替换成enhancer 。这样提高了我们的开发体验。
 ```
  if (typeof preloadedState === 'function' && typeof enhancer === 'undefined') {
     enhancer = preloadedState
@@ -114,7 +115,7 @@ export default function autoLogger() {
 }
 
 ```
-这里总结一下，通过这个enhancer我们可以改变dispatch 的行为。 其实这个例子是通过在enhancer 方法中定义新的dispatch覆盖store中的dispatch来使用户访问到新的dispatch。除此之外还可以看`applyMiddleware`这个方法，这个我们后面再讲。
+这里总结一下，通过这个enhancer我们可以改变dispatch 的行为。 其实这个例子是通过在enhancer 方法中定义新的dispatch覆盖store中的dispatch来使用户访问到我们通过enhancer新定义的dispatch。除此之外还可以看`applyMiddleware`这个方法，这个我们后面再讲。
 
 接下来我们看到这里，配置了一些变量 ,初始化时 将初始化数据preloadedState 赋值给`currentState` 。这些变量实际上是一个闭包，保存一些全局数据。
 
@@ -165,7 +166,37 @@ function dispatch(action){
     
 ```
 
-订阅函数返回一个解除订阅函数`unsubscribe`，传入的监听函数listener将在action 触发 dispatch 时被调用,用这个监听函数去改变状态树中的对应的state。首先订阅器在每次dispatch之前会将listener 保存到nextListeners 中，相当于是一份快照。如果当你正在执行listener函数时，如果此时又收到订阅或者接触订阅指令 ，后者不会立即生效 ，而是在下一次调用`dispatch` 会使用最新的订阅者列表即`nextListeners`。
+订阅函数返回一个解除订阅函数`unsubscribe`，传入的监听函数listener首先会被放入当前订阅者回调函数列表nextListeners中 ，在action 触发 dispatch 时，首先combination 及 我们的当前传入的renducer会更新最新的状态树，然后listener被调用用于更新调用方的数据 在React 中 这个调用一般是用来更新当前组件state。React 中我们使用react-redux 来与redux做连接。想了解更多可以查看源码 [https://github.com/reactjs/react-redux/blob/master/src/components/connectAdvanced.js](https://github.com/reactjs/react-redux/blob/master/src/components/connectAdvanced.js) 。
+
+源码做了高度封装，这里找了一个大致的例子来观察react-redux 中高阶组件 Connect 如何订阅redux 以及更新组件状态。
+```
+static contextTypes = {
+    store: PropTypes.object
+  }
+
+  constructor () {
+    super()
+    this.state = { themeColor: '' }
+  }
+  
+  // 组件挂载前添加订阅
+  componentWillMount () {
+    this._updateThemeColor()
+    store.subscribe(() => this._updateThemeColor())
+  }
+
+  _updateThemeColor () {
+    const { store } = this.context
+    const state = store.getState()
+    this.setState({ themeColor: state.themeColor })
+  }
+
+```
+我们调用`store.subscribe(() => this._updateThemeColor())` 来订阅store  `() => this._updateThemeColor()`这个传入的回调就是 listener。当我们dispatch时 我们执行listener实际
+上是在执行`this.setState({ themeColor: state.themeColor })`从而更新当前组件的对应状态树的state。
+
+
+订阅器在每次dispatch之前会将listener 保存到nextListeners 中，相当于是一份快照。如果当你正在执行listener函数时，如果此时又收到订阅或者接触订阅指令 ，后者不会立即生效 ，而是在下一次调用`dispatch` 会使用最新的订阅者列表即`nextListeners`。
 当调用dispatch时 将最新的订阅者快照`nextListeners` 赋给 `currentListeners`。
 [这里有篇博客文章专门讨论了这个话题](https://github.com/MrErHu/blog/issues/18)
 ```
@@ -204,7 +235,8 @@ doSubscribe();
 
 ##### dispatch方法
 
-我们来看dispatch函数，dispatch 用来分发一个action ,触发状态改变。这里是内部的dispatch 方法， 传入的action 只能是最朴素的action 对象。 包含一个state 和 type 属性。 如果需要action 支持promise ,可以使用 [redux-promise](https://github.com/redux-utilities/redux-promise) 它的本质是一个中间件。 在其内部对action做处理，并最终传递一个朴素的action 对象到dispatch方法中。
+我们来看dispatch函数，dispatch 用来分发一个action,触发reducer改变当前状态树然后执行listener 更新组件state。这里是内部的dispatch 方法， 传入的action 是朴素的action 对象。 包含一个state 和 type 属性。 
+如果需要action 支持更多功能可以使用enhancer增强。如支持promise ,可以使用 [redux-promise](https://github.com/redux-utilities/redux-promise) 它的本质是一个中间件。 在其内部对action做处理，并最终传递一个朴素的action 对象到dispatch方法中。我们在下面介绍 applyMiddleware 中还会讨论这个话题。
 ```
    function dispatch(action) {
     if (!isPlainObject(action)) {
