@@ -3,8 +3,9 @@
 ##### 前言 
 最近做项目遇到了一些复杂数据处理，侧面体会到一个良好的数据层设计对一个项目的稳定性和可维护性是多么的重要。于是想以源码分析的方式总结一下当前的数据管理方式，首选redux。
 我们可以通过Redux 的官方文档来了解其设计思想。
-[http://cn.redux.js.org/](http://cn.redux.js.org/).
+[http://cn.redux.js.org/](http://cn.redux.js.org/). 
 
+本文保存在我的github上 欢迎fork or star [https://github.com/yangfan0095/basis](https://github.com/yangfan0095/basis)
 ##### Redux 源码入口 index.js
 我们可以看到 Redux 对外导出了以下5个模块。分别对应5个js文件。
 ```
