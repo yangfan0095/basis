@@ -1,12 +1,12 @@
 ### 一步一步分析Redux源码
 
-##### 前言 
+#### 前言 
 最近做项目遇到了一些复杂数据处理，侧面体会到一个良好的数据层设计对一个项目的稳定性和可维护性是多么的重要。于是想以源码分析的方式总结一下当前的数据管理方式，首选redux。
 我们可以通过Redux 的官方文档来了解其设计思想。
 [http://cn.redux.js.org/](http://cn.redux.js.org/). 
 
 本文保存在我的github上 欢迎fork or star [https://github.com/yangfan0095/basis](https://github.com/yangfan0095/basis)
-##### Redux 源码入口 index.js
+#### Redux 源码入口 index.js
 我们可以看到 Redux 对外导出了以下5个模块。分别对应5个js文件。
 ```
 import createStore from './createStore'
@@ -38,7 +38,6 @@ export {
 其中最主要的文件就是 createStore 。
 
 #### createStore
-##### createStore概括
 
 `createStore`该方法的主要作用是创建一个带有初始化状态树的store。并且该状态树状态只能够通过 `createStore`提供的`dispatch` api 来触发`reducer`修改。
 
@@ -129,7 +128,7 @@ export default function autoLogger() {
   ...
   
 ```
-##### subscribe 方法
+#### subscribe 方法
 
 ```
  function subscribe(listener) {
@@ -210,8 +209,8 @@ static contextTypes = {
 ```
 
 
-##### ensureCanMutateNextListeners 函数
-关于`ensureCanMutateNextListeners`函数的作用，我看了很多类似的源码分析，但是都没有找到很好的解释。大抵上的作用是某些场景可能会导重复的listener被添加，从而导致当前订阅者列表中存在两个相同的处理函数。`ensureCanMutateNextListeners`的作用是为了规避这种现象发生。
+#### ensureCanMutateNextListeners 函数
+关于`ensureCanMutateNextListeners`函数的作用，我看了很多资料，但是都没有找到很好的解释。大抵上的作用是某些场景可能会导重复的listener被添加，从而导致当前订阅者列表中存在两个相同的处理函数。`ensureCanMutateNextListeners`的作用是为了规避这种现象发生。
 ```
   function ensureCanMutateNextListeners() {
     if (nextListeners === currentListeners) {
@@ -234,7 +233,7 @@ doSubscribe();
 
 ```
 
-##### dispatch方法
+#### dispatch方法
 
 我们来看dispatch函数，dispatch 用来分发一个action,触发reducer改变当前状态树然后执行listener 更新组件state。这里是内部的dispatch 方法， 传入的action 是朴素的action 对象。 包含一个state 和 type 属性。 
 如果需要action 支持更多功能可以使用enhancer增强。如支持promise ,可以使用 [redux-promise](https://github.com/redux-utilities/redux-promise) 它的本质是一个中间件。 在其内部对action做处理，并最终传递一个朴素的action 对象到dispatch方法中。我们在下面介绍 applyMiddleware 中还会讨论这个话题。
@@ -292,7 +291,7 @@ doSubscribe();
     }
     
 ```
-##### replaceReducer 方法
+#### replaceReducer 方法
 replaceReducer 方法用于动态更新当前`currentReducer` 。 通过对外暴露replaceReducer API, 外部可以直接调用这个方法来替换当前`currentReducer`。然后执行`dispatch({ type: ActionTypes.INIT })` 其实相当于一个初始化的createStore操作。` dispatch({ type: ActionTypes.INIT })`的作用是当store被创建时，一个初始化的action `{ type: ActionTypes.INIT }` 被分发当前所有的reducer ，reducer返回它们的初始值，这样就生成了一个初始化的状态树。
 
 ```
@@ -306,7 +305,7 @@ replaceReducer 方法用于动态更新当前`currentReducer` 。 通过对外�
   }
   
 ```
-##### getState 方法
+#### getState 方法
 返回当前状态树
 ```
   function getState() {
@@ -314,7 +313,7 @@ replaceReducer 方法用于动态更新当前`currentReducer` 。 通过对外�
   }
   
 ```
-##### observable方法
+#### observable方法
 
 observable 是通过私有属性被暴露出去的 ，只供内部使用。
 该函数对外返回一个`subscribe`方法，该方法可以用来观察最小单位的state 状态的改变。
