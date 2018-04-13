@@ -3,7 +3,7 @@
 * [nodeJs ES7 实现一个稳定性爬虫抓取古文网数据](https://github.com/yangfan0095/basis/blob/master/blog/nodeJs%20ES7%20%E5%AE%9E%E7%8E%B0%E4%B8%80%E4%B8%AA%E7%A8%B3%E5%AE%9A%E6%80%A7%E7%88%AC%E8%99%AB%E6%8A%93%E5%8F%96%E5%8F%A4%E6%96%87%E7%BD%91%E6%95%B0%E6%8D%AE.md)
 * [Vue UI 框架对比 element VS iview ](https://zhuanlan.zhihu.com/p/27479767)
 * [一步一步分析koa2源码](https://github.com/yangfan0095/basis/blob/master/blog/koa2%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90.md)
-* [一步一步分析Redux源码](https://github.com/yangfan0095/basis/blob/master/blog/redux%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90.md)
+* [一步一步分析Redux源码](https://github.com/yangfan0095/basis/blob/master/blog/%E4%B8%80%E6%AD%A5%E4%B8%80%E6%AD%A5%E5%88%86%E6%9E%90Redux%E6%BA%90%E7%A0%81.md)
 ### 学习笔记
 * [css 之 flex和grid布局](https://github.com/yangfan0095/basis/blob/master/blog/flex%E5%92%8Cgrid%E5%B8%83%E5%B1%80.md)
 * [http协议之post请求常见的Content-Type数据提交方式](https://github.com/yangfan0095/basis/blob/master/blog/post%E8%AF%B7%E6%B1%82%E5%B8%B8%E8%A7%81%E7%9A%84Content-Type%E6%95%B0%E6%8D%AE%E6%8F%90%E4%BA%A4%E6%96%B9%E5%BC%8F.md)
