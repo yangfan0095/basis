@@ -12,3 +12,7 @@
 * [generator函数同步方式处理异步理解](https://github.com/yangfan0095/basis/blob/master/blog/generator%E5%90%8C%E6%AD%A5%E5%AE%9E%E7%8E%B0%E5%BC%82%E6%AD%A5%E5%9F%BA%E7%A1%80%E7%90%86%E8%A7%A3(1).md)
 * [数据处理相关日常记录](https://github.com/yangfan0095/basis/blob/master/blog/records/%E6%95%B0%E6%8D%AE%E5%A4%84%E7%90%86%E6%97%A5%E5%B8%B8%E8%AE%B0%E5%BD%95.md)
 
+#### 算法
+* [LeetCood 算法题练习（一）](https://github.com/yangfan0095/basis/issues/2)
+
+
