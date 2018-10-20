@@ -15,5 +15,7 @@
 
 #### 算法
 * [LeetCood 算法题练习（一）](https://github.com/yangfan0095/basis/issues/2)
+#### 其他
+* [VS Code 快速使用指南](https://github.com/yangfan0095/basis/blob/master/blog/VS%20Code%20%E4%BD%BF%E7%94%A8%E6%8C%87%E5%8D%97.md)
 
 
