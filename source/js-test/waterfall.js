@@ -1,5 +1,6 @@
+// 实现一个基本的顺序迭代器
 // js 顺序迭代
-const waterfall = () => {
+function waterfall() {
 	let tasks = []
 	// 顺序遍历执行队列
 	let iterate = index => {
