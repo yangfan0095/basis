@@ -1,2 +1,23 @@
-.DS_Store
+node_modules/
+/dist/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+/shell
+source-to-prd
+source-to-pre
+source-to-test
+
+
+
+# Editor directories and files
+.idea
 .vscode
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+
+source-to-prd
+source-to-pre
+source-to-test
