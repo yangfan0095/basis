@@ -13,7 +13,11 @@
 * [数据处理相关日常记录](https://github.com/yangfan0095/basis/blob/master/blog/records/%E6%95%B0%E6%8D%AE%E5%A4%84%E7%90%86%E6%97%A5%E5%B8%B8%E8%AE%B0%E5%BD%95.md)
 * [浏览器缓存之强缓存和 协商缓存](https://github.com/yangfan0095/basis/blob/master/blog/%E6%B5%8F%E8%A7%88%E5%99%A8%E5%BC%BA%E7%BC%93%E5%AD%98%E4%B8%8E%E5%8D%8F%E5%95%86%E7%BC%93%E5%AD%98.md)
 
+* [react 源码学习](https://github.com/yangfan0095/basis/blob/master/blog/react%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0.md)
+
 #### 算法
 * [LeetCood 算法题练习（一）](https://github.com/yangfan0095/basis/issues/2)
+#### 其他
+* [VS Code 快速使用指南](https://github.com/yangfan0095/basis/blob/master/blog/VS%20Code%20%E4%BD%BF%E7%94%A8%E6%8C%87%E5%8D%97.md)
 
 

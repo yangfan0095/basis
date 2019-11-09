@@ -282,7 +282,42 @@ function compose (middleware) {
 
 ```
 这个compose函数 返回一个函数， 这个函数执行则可以 通过一个递归去遍历执行所有的中间件函数。通过在`Promise.resolve(fn) `的回调中执行fn  即实现了对异步函数的处理。我们可以关注一下 最初是执行的是
-dispatch(0) 也就是this.middleware数组中下标为0的函数，也就是说 最先进入的中间件函数会最先被执行 就像一个执行队列。
+dispatch(0) 也就是this.middleware数组中下标为0的函数.
+此处较为关键的一段代码实现了洋葱模型
+```
+Promise.resolve(fn(context, function next () {
+          return dispatch(i + 1)
+        }))
+        
+```
+此处 next() 为 
+```
+function next () {
+          return dispatch(i + 1)
+        })
+        
+```
+
+我们在写中间件时 通常规范为如下代码 ，我们一步一步 从0 到 n 执行  await next() 就相当于将函数控制权暂时交回给了 next() ，等到next()执行完毕 ，再逐次收回控制权执行中间件其余代码 。 这就是所谓的洋葱模型
+
+```
+app.use(async (ctx, next) => {
+  await next();
+  const rt = ctx.response.get('X-Response-Time');
+  console.log(`${ctx.method} ${ctx.url} - ${rt}`);
+});
+
+// x-response-time
+
+app.use(async (ctx, next) => {
+  const start = Date.now();
+  await next();
+  const ms = Date.now() - start;
+  ctx.set('X-Response-Time', `${ms}ms`);
+});
+
+```
+
 
 执行完成以后 执行next() 到下一步处理。
 这个时候我们再看第一行 `const fn = compose(this.middleware); ` 。
