@@ -96,25 +96,4 @@ const testBfs = ()=>{
 testBfs()
 
 
-// function aaa (){
-//     return {
-//         bbb:function(){
-//             console.log(000)
-//         }
-//     }
-// }
-
-// class ccc{
-//     ddd(){
-//         console.log('ddd')
-//     }
-// }
-
-// const a = new aaa()
-// a.bbb()
-
-// const d = new ccc() 
-// d.ddd()
-
-
 
