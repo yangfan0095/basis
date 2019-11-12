@@ -1,4 +1,4 @@
-const {tokenizer, parser} = require('./lispCompiler')
+const {tokenizer, parser,transformer,codeGenerator} = require('./lispCompiler')
 // const expect = require('chai').expect;
 
 /**-----------------tokenizer test -----------------------**/
@@ -64,5 +64,23 @@ console.log(`tokenizer 结果：`, JSON.stringify({token: token}))
 console.log('测试语法分析器 parser')
 const AST = parser(token)
 console.log(`语法分析器 生成AST:${JSON.stringify(AST)}`)
+
+
+/**-----------------transformer test -----------------------**/
+
+
+
+console.log('transformer test')
+const newAst =  transformer(AST)
+console.log(`new Ast`,JSON.stringify(newAst))
+
+
+
+/**-----------------codeGenerator test -----------------------**/
+
+console.log(`codeGenerator test `)
+const code = codeGenerator(newAst)
+console.log(`生成的新的代码：${code}`)
+
 
  

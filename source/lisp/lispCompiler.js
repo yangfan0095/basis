@@ -11,13 +11,13 @@ const tokenizer = (input) => {
     while (current < input.length) {
         let char = input[current]
         if (char === '(') {
-            tokens.push({type: 'paren', value: '('})
+            tokens.push({ type: 'paren', value: '(' })
             current++;
             continue;
         }
 
         if (char === ')') {
-            tokens.push({type: 'paren', value: ')'});
+            tokens.push({ type: 'paren', value: ')' });
             current++;
             continue;
         }
@@ -37,7 +37,7 @@ const tokenizer = (input) => {
                 value += char;
                 char = input[++current];
             }
-            tokens.push({type: 'number', value});
+            tokens.push({ type: 'number', value });
             continue;
         }
         // 解析字符串
@@ -51,7 +51,7 @@ const tokenizer = (input) => {
 
             // 进到此处的 " 为 第二个" ,
             char = input[++current];
-            tokens.push({type: 'string', value});
+            tokens.push({ type: 'string', value });
             continue;
         }
         // 解析方法声明
@@ -62,7 +62,7 @@ const tokenizer = (input) => {
                 value += char;
                 char = input[++current];
             }
-            tokens.push({type: 'name', value});
+            tokens.push({ type: 'name', value });
             continue;
         }
 
@@ -134,11 +134,11 @@ const parser = (tokens) => {
         let token = tokens[current];
         if (token.type === 'number') {
             current++;
-            return {type: 'NumberLiteral', value: token.value};
+            return { type: 'NumberLiteral', value: token.value };
         }
         if (token.type === 'string') {
             current++;
-            return {type: 'StringLiteral', value: token.value};
+            return { type: 'StringLiteral', value: token.value };
         }
         // 遇到 CallExpression 类型
         if (token.type === 'paren' && token.value === '(') {
@@ -181,34 +181,181 @@ const parser = (tokens) => {
 }
 
 /**
- * 
+ * 转换器 传入AST 和AST访问器， 对AST进行遍历 对应的节点调用访问器中对应的方法 进行内容操作
  *
  * @param {*} ast
  * @param {*} visitor
  */
 const traverser = (ast, visitor) => {
     // 遍历当前AST数组结构下的类型， 对每一个类型 调用traverseNode进行转换
-    let __traverseArray = (array, parent) => {
+    var __traverseArray = (array, parent) => {
         array.forEach(child => {
-            traverseNode(child, parent);
+            __traverseNode(child, parent);
         });
     }
-    let __traverseNode = (node, parent)=> {
+    var __traverseNode = (node, parent) => {
         let methods = visitor[node.type];
 
         if (methods && methods.enter) {
             methods.enter(node, parent);
-          }
+        }
 
+        switch (node.type) {
+            case 'Program':
+                __traverseArray(node.body, node);
+                break;
+            case 'CallExpression':
+                __traverseArray(node.params, node);
+                break;
+            case 'NumberLiteral':
+            case 'StringLiteral':
+                break;
+            default:
+                throw new TypeError(node.type);
+        }
+
+        if (methods && methods.exit) {
+            methods.exit(node, parent);
+        }
     }
 
+    // 传入初始化抽象语法树 ， 无根节点 ，传null
+    __traverseNode(ast, null);
 }
 
-const transformer = ()=>{
-    
+// 节点访问器
+const visitor = {
+    NumberLiteral: {
+        enter (node, parent) {
+            parent._context.push({
+                type: 'NumberLiteral',
+                value: node.value,
+            })
+        }
+    },
+    StringLiteral: {
+        enter (node, parent) {
+            parent._context.push({
+                type: 'StringLiteral',
+                value: node.value,
+            });
+        }
+    },
+    CallExpression: {
+        enter (node, parent) {
+            let expression = {
+                type: 'CallExpression',
+                callee: {
+                    type: 'Identifier',
+                    name: node.name,
+                },
+                arguments: [],
+            }
+            node._context = expression.arguments  // 子项遍历， 内容挂载到 arguments 上
+
+            if (parent.type !== 'CallExpression') {
+                expression = {
+                    type: 'ExpressionStatement',
+                    expression: expression,
+                }
+            }
+
+            parent._context.push(expression); // 将当前 CallExpression 所有子集遍历项 挂载在父级上下文
+        }
+    }
+}
+/**
+ * transformer 接收lisp抽象语法树 返回新的语法树
+ * @param {*} ast 
+ */
+const transformer = (ast) => {
+    let newAst = {
+        type: 'Program',
+        body: [],
+    }
+
+    ast._context = newAst.body;
+    traverser(ast, visitor)
+    return newAst
+}
+
+/**
+ * 代码生成器 传入AST节点 ，对节点递归生成对应的代码
+ * @param {*} node 
+ * 
+ * 
+ * 
+ * 输入：
+ * {
+    "type":"Program",
+    "body":[
+        {
+            "type":"ExpressionStatement",
+            "expression":{
+                "type":"CallExpression",
+                "callee":{
+                    "type":"Identifier",
+                    "name":"add"
+                },
+                "arguments":[
+                    {
+                        "type":"NumberLiteral",
+                        "value":"2"
+                    },
+                    {
+                        "type":"CallExpression",
+                        "callee":{
+                            "type":"Identifier",
+                            "name":"subtract"
+                        },
+                        "arguments":[
+                            {
+                                "type":"NumberLiteral",
+                                "value":"4"
+                            },
+                            {
+                                "type":"NumberLiteral",
+                                "value":"2"
+                            }
+                        ]
+                    }
+                ]
+            }
+        }
+    ]
+}
+ * 输出：
+ * add(2, subtract(4, 2))
+ * 
+ * 
+ */
+const codeGenerator = (node) => {
+    switch (node.type) {
+        case 'Program':
+            return node.body.map(codeGenerator).join('\n');
+        case 'ExpressionStatement':
+            return codeGenerator(node.expression) + ';';
+        case 'CallExpression':
+            return (
+                codeGenerator(node.callee) +
+                '(' +
+                node.arguments.map(codeGenerator).join(', ') +
+                ')'
+            );
+        case 'Identifier':
+            return node.name;
+        case 'NumberLiteral':
+            return node.value;
+        case 'StringLiteral':
+            return '"' + node.value + '"';
+        default:
+            throw new TypeError(node.type);
+    }
 }
 
 module.exports = {
     tokenizer,
-    parser
+    parser,
+    transformer,
+    codeGenerator
 }
