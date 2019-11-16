@@ -110,8 +110,38 @@ class Graph {
     /**
      * 深度优先算法遍历图
      */
-    dfs(v,cb){
-        console.log(v)
+    dfs(cb){
+        /**
+         * dfs访问器
+         * @param {*} key 当前需要访问的节点
+         * @param {*} color   当前的color Map
+         * @param {*} cb 访问到当前节点key时 执行的回调 非必填
+         */
+        const __dfsVisit = (key,color,cb) =>{
+            color[key] = 'grey'; // 更新当前节点key 状态
+            if(typeof cb === 'function'){
+                cb(key)
+            }
+            const neighbors = this.adjList[key]
+            neighbors.forEach(d=>{
+                if(color[d] === 'white'){
+                    __dfsVisit(d,color,cb)
+                }
+            })
+            color[key] = 'black';// 更新当前key状态
+        }
+
+
+         // 给当前图初始化颜色
+         const color = this.initializaColor()
+
+
+        // 循环当前颜色list ，  执行深度访问方法
+       this.vertices.forEach(key=>{
+           if(color[key] === 'white'){
+               __dfsVisit(key,color,cb)
+           }
+       })
 
     }
    
