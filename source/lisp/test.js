@@ -10,7 +10,7 @@ const {tokenizer, parser,transformer,codeGenerator} = require('./lispCompiler')
  * "{"token":[{"type":"paren","value":"("},{"type":"name","value":"add"},{"type":"number","value":"2"},{"type":"paren","value":"("},{"type":"name","value":"subtract"},{"type":"number","value":"4"},{"type":"number","value":"2"},{"type":"paren","value":")"},{"type":"paren","value":")"}]}"
  */
 console.log('测试词法分析器 tokenizer')
-const testLisp = '(add 2 (subtract 4 2))'
+const testLisp = '(add 100 100)'
 const token = tokenizer(testLisp)
 console.log(`tokenizer 结果：`, JSON.stringify({token: token}))
 
